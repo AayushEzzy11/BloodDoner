@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 8%;
+
+    --primary: 355 85% 47%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 220 15% 8%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 355 15% 95%;
+    --accent-foreground: 355 85% 47%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 355 85% 47%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 355 85% 47%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 355 15% 95%;
+    --sidebar-accent-foreground: 355 85% 47%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 355 85% 47%;
+
+    /* SahayogRed brand colors */
+    --brand-red: 355 85% 47%;
+    --brand-red-light: 355 85% 55%;
+    --brand-red-dark: 355 85% 40%;
+    --brand-gray: 220 15% 8%;
+    --brand-gray-light: 220 10% 50%;
+  }
+
+  .dark {
+    --background: 220 15% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 220 15% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 220 15% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 355 85% 55%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 220 15% 15%;
+    --accent-foreground: 355 85% 55%;
+
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 355 85% 55%;
+
+    --sidebar-background: 220 15% 8%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 355 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 15%;
+    --sidebar-accent-foreground: 355 85% 55%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 355 85% 55%;
+
+    /* SahayogRed brand colors - dark mode */
+    --brand-red: 355 85% 55%;
+    --brand-red-light: 355 85% 65%;
+    --brand-red-dark: 355 85% 45%;
+    --brand-gray: 210 40% 98%;
+    --brand-gray-light: 215 20.2% 65.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Custom animations */
+  .animate-fadeIn {
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 0.6s;
+  }
+
+  .animation-delay-900 {
+    animation-delay: 0.9s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Hover effects */
+  .hover-scale:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    transition: transform 0.2s ease-in-out;
+  }
+}
