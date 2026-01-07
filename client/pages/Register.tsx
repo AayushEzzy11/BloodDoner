@@ -109,11 +109,19 @@ export default function Register() {
 
   const handleRegister = async () => {
     if (tab === "donor") {
-      const { email, password, confirmPassword } = donorData;
-      if (!email || !password) return toast.error("Email and password required.");
+      const { email,firstName, lastName,phone,bloodType,age,address, password, confirmPassword } = donorData;
+      if(!firstName) return toast.error("First name is required.");
+      if(!lastName) return toast.error("Last name is required.");
+      if (!email) return toast.error("Email is required.");
+      if(!phone) return toast.error("Phone number is required.");
+      if(phone.length !== 15) return toast.error("Invalid Phone number.");
+      if(!bloodType) return toast.error("Blood type is required.");
+      if(!age) return toast.error("Age is required.");
+      if(parseInt(age) < 18) return toast.error("You must be at least 18 years old.");
+      if(!address) return toast.error("Address is required.");
+      if(!password) return toast.error("Password is required.");
       if (password !== confirmPassword)
         return toast.error("Passwords do not match.");
-
       try {
         await registerUser(email, password, {
           role: "donor",
@@ -140,10 +148,13 @@ export default function Register() {
         switch (err.code) {
           case "auth/email-already-in-use":
             toast.error("This email already exist.");
+            break;
           case "auth/invalid-email":
             toast.error("Invalid email format.");
+            break;
           case "auth/weak-password":
             toast.error("Password is too weak (min 6 characters).");
+            break;
           default:
             toast.error("Registration failed:",err.message);
         }
@@ -208,7 +219,7 @@ export default function Register() {
           </div>
 
           <Tabs defaultValue="donor" value={tab} onValueChange={(val) => setTab(val as "donor" | "seeker")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            {/* <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="donor" className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />
                 I'm a Donor
@@ -216,7 +227,7 @@ export default function Register() {
               <TabsTrigger value="seeker" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />I Need Blood
               </TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             <TabsContent value="donor">
               <Card>
@@ -284,7 +295,8 @@ export default function Register() {
                       <Input id="age"
                         value={donorData.age}
                         onChange={handleChange}
-                        type="number" placeholder="25" />
+                        type="number" placeholder="25" 
+                        min="18"/>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -313,7 +325,7 @@ export default function Register() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="seeker">
+            {/* <TabsContent value="seeker">
               <Card>
                 <CardHeader>
                   <CardTitle>Register as Blood Seeker</CardTitle>
@@ -391,7 +403,7 @@ export default function Register() {
                   <Button className="w-full" onClick={handleRegister}>Register as Seeker</Button>
                 </CardContent>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
 
           <div className="text-center text-sm text-muted-foreground mt-6">
