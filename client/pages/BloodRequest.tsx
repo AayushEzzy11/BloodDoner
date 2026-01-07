@@ -29,7 +29,8 @@ import {
   Users,
   Heart,
   CheckCircle,
-  Search
+  Search, 
+  Mailbox
 } from "lucide-react";
 import { Link ,useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -253,11 +254,18 @@ export default function BloodRequest() {
                             {donor.lastDonation || "No donation history"}
                           </span>
                         </div>
+                         <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                          <span className="flex items-center gap-1">
+                            <Mailbox className="h-3 w-3" />
+                            {donor.email}
+                          </span>
+                        </div>
                       </div>
-                      <Button size="sm">
+                      
+                      {/* <Button size="sm">
                         <Phone className="h-4 w-4 mr-1" />
                         Contact
-                      </Button>
+                      </Button> */}
                     </div>
                   ))
                 ):(
