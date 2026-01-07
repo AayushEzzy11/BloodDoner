@@ -1,6 +1,6 @@
 import { db } from "@/firebase/firebaseConfig"; // your initialized firebase-admin
 import { collection, doc, getDoc, setDoc, updateDoc, query, where, getDocs, Timestamp }  from "firebase/firestore";
-import { uploadBloodDonationReport } from "@/lib/uploader";
+// import { uploadBloodDonationReport } from "@/lib/uploader";g
 
 
 export const acceptBloodRequest = async (
@@ -57,30 +57,30 @@ export const acceptBloodRequest = async (
   };
 };
 
-export const completeBloodDonation = async (
-  donationId: string,
-  file: {
-    buffer: Buffer;
-    originalname: string;
-  }
-) => {
-  const donationRef = db.collection("bloodAcceptances").doc(donationId);
-  const donationSnap = await donationRef.get();
+// export const completeBloodDonation = async (
+//   donationId: string,
+//   file: {
+//     buffer: Buffer;
+//     originalname: string;
+//   }
+// ) => {
+//   const donationRef = db.collection("bloodAcceptances").doc(donationId);
+//   const donationSnap = await donationRef.get();
 
-  if (!donationSnap.exists) {
-    throw new Error("Donation record not found");
-  }
+//   if (!donationSnap.exists) {
+//     throw new Error("Donation record not found");
+//   }
 
-  const reportUrl = await uploadBloodDonationReport(file);
+//   const reportUrl = await uploadBloodDonationReport(file);
 
-  await donationRef.update({
-    reportUrl,
-    status: "completed",
-    completedAt: Timestamp.now(),
-  });
+//   await donationRef.update({
+//     reportUrl,
+//     status: "completed",
+//     completedAt: Timestamp.now(),
+//   });
 
-  return {
-    success: true,
-    reportUrl,
-  };
-};
+//   return {
+//     success: true,
+//     reportUrl,
+//   };
+// };
