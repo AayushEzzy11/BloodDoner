@@ -1,7 +1,7 @@
 // server/routes/donation.ts
 import { RequestHandler, Router } from "express";
 import multer from "multer";
-import { completeBloodDonation, UploadFile } from "@server/lib/bloodDonation";
+import { UploadFile , CompleteBloodDonation} from "../lib/bloodDonation";
 
 const router = Router();
 const upload = multer(); // memory storage
@@ -21,7 +21,7 @@ export const handleCompleteDonation: RequestHandler<{ donationId: string }> = as
       originalname: file.originalname,
     };
 
-    const result = await completeBloodDonation(uploadFile, donationId);
+    const result = await CompleteBloodDonation(uploadFile, donationId);
 
     res.status(200).json(result);
   } catch (err: any) {
