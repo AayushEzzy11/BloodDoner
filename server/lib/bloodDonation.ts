@@ -1,8 +1,8 @@
 // server/lib/bloodDonation.ts
 import fs from "fs";
 import path from "path";
-import { db, Timestamp } from "@server/firebase/firebaseConfig"; // ✅ alias used
-
+import { db} from "../firebase/firebaseConfig"; // ✅ alias used
+import { Timestamp } from "firebase/firestore";
 export interface UploadFile {
   buffer: Buffer;
   originalname: string;
@@ -33,7 +33,7 @@ export const uploadBloodDonationReport = async (file: UploadFile): Promise<strin
  * 2. Update bloodAcceptances document
  * 3. Update the linked bloodRequest status to "completed"
  */
-export const completeBloodDonation = async (file: UploadFile, donationId: string) => {
+export const CompleteBloodDonation = async (file: UploadFile, donationId: string) => {
   const donationRef = db.collection("bloodAcceptances").doc(donationId);
   const donationSnap = await donationRef.get();
 
