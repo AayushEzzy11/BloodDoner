@@ -73,7 +73,7 @@ export default function BloodRequest() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [bloodRequest, setBloodRequest] = useState<any>(null);
-  const [donorsFound,setDonorsFound] = useState <any>(null);
+  const [donorsFound, setDonorsFound] = useState<any>(null);
   const [formData, setFormData] = useState<FormData>({
     patientName: "",
     bloodType: "",
@@ -85,16 +85,15 @@ export default function BloodRequest() {
     alternatePhone: "",
     location: "",
     medicalCondition: "",
-    additionalNotes: ""
+    additionalNotes: "",
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [showDonors, setShowDonors] = useState(!!id);
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
+
   useEffect(() => {
-    setShowDonors(!!id);
-    if (!id) return; 
+    if (!id) return;
     const fetchRequest = async () => {
       try {
         const requestDocRef = doc(db, "bloodRequests", id);
@@ -133,13 +132,12 @@ export default function BloodRequest() {
   const submitRequest = async () => {
     // Here you would typically submit to your backend
     console.log("Submitting blood request:", formData);
-    const request= await createBloodRequest(formData);
-    if(request.success){
+    const request = await createBloodRequest(formData);
+    if (request.success) {
       toast.success(request.message);
+      // Go to the newly created request summary (donor list view)
       navigate(`/request/${request.id}`);
-      
-      // setShowDonors(true);
-    }else{
+    } else {
       toast.error("Request submission failed");
     }
   };
@@ -164,7 +162,9 @@ export default function BloodRequest() {
     }
   };
 
-  if (showDonors) {
+  // If we have a request id in the URL, show the submitted request
+  // summary + matched donors. Otherwise, show the multi-step form.
+  if (id && bloodRequest) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -283,7 +283,13 @@ export default function BloodRequest() {
             <p className="text-muted-foreground mb-4">
               You'll receive notifications as donors respond to your request
             </p>
-            <Button variant="outline" onClick={() => {setShowDonors(false); navigate("/request");}}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                // Navigate to a fresh request form (no :id in URL)
+                navigate("/request");
+              }}
+            >
               Submit Another Request
             </Button>
           </div>
