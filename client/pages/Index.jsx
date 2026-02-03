@@ -273,9 +273,6 @@ export default function Index() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
-                <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
-                  <Heart className="h-5 w-5 text-primary-foreground fill-current" />
-                </div>
                 <span className="text-xl font-bold">SahayogRed</span>
               </div>
               <p className="text-primary-foreground/80 mb-4">

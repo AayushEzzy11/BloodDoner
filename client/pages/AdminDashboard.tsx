@@ -21,7 +21,7 @@ import DonorsTable from "@/components/admin/DonorsTable";
 import ActivityLog from "@/components/admin/ActivityLog";
 import { logoutUser } from "@/lib/auth";
 
-type TabType = "dashboard" | "requests" | "donors" | "analytics";
+type TabType = "dashboard" | "requests" | "donors" | "analytics" | "activity";
 
 /**
  * Sahayog Red Admin Dashboard
@@ -93,6 +93,11 @@ export const AdminDashboard = () => {
     {
       id: "analytics" as TabType,
       label: "Analytics",
+      icon: BarChart3,
+    },
+    {
+      id: "activity" as TabType,
+      label: "Recent Activity",
       icon: BarChart3,
     },
   ];
@@ -298,8 +303,21 @@ export const AdminDashboard = () => {
 
                 {/* Trend */}
                 <RequestTrendChart refreshTrigger={refreshTrigger} />
+              </div>
+            )}
 
-                {/* Recent Activity */}
+            {/* Recent Activity Tab */}
+            {activeTab === "activity" && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    Recent Activity
+                  </h2>
+                  <p className="text-gray-600">
+                    Latest admin actions across blood requests and donors
+                  </p>
+                </div>
+
                 <ActivityLog refreshTrigger={refreshTrigger} />
               </div>
             )}

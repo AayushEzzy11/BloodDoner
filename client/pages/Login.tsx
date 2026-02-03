@@ -58,8 +58,10 @@ export default function Login() {
       const user = await loginUser(email, password);
       toast.success(`Login Successful!!`);
       
-      // Don't navigate here - let the onAuthStateChanged listener handle it
-      // This prevents the bouncing issue
+      // After successful login, send donors to their dashboard.
+      // Dashboard itself also guards against non-donor roles and
+      // redirects back to /login if needed.
+      navigate("/dashboard");
       
       setLoginData({
         email: "",

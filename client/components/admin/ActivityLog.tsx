@@ -75,7 +75,7 @@ export const ActivityLog = ({ refreshTrigger = 0 }: ActivityLogProps) => {
     <Card>
       <CardHeader>
         <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>Latest admin actions on the system</CardDescription>
+        <CardDescription>Latest admin actions across requests and donors</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -89,41 +89,78 @@ export const ActivityLog = ({ refreshTrigger = 0 }: ActivityLogProps) => {
           </div>
         ) : activities.length === 0 ? (
           <div className="flex items-center justify-center h-64">
-            <p className="text-gray-500">No activities yet</p>
+            <p className="text-gray-500">No activities recorded yet</p>
           </div>
         ) : (
-          <ScrollArea className="h-64 pr-4">
-            <div className="space-y-4">
-              {activities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-4 pb-4 border-b last:border-b-0"
-                >
-                  <Badge className={getActionColor(activity.action)}>
-                    {getActionLabel(activity.action)}
-                  </Badge>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">
-                      {activity.details?.patientName ||
-                        activity.details?.donorName ||
-                        "System Action"}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {formatDistanceToNow(new Date(activity.timestamp), {
-                        addSuffix: true,
-                      })}
-                    </div>
-                    {activity.details?.previousStatus && (
-                      <div className="text-xs text-gray-600 mt-1">
-                        Status: {activity.details.previousStatus} →{" "}
-                        {activity.details.newStatus}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+          <div className="space-y-3">
+            {/* Header row */}
+            <div className="hidden md:grid md:grid-cols-[0.8fr,1.4fr,0.8fr,1.2fr] text-xs font-medium text-gray-500 pb-2 border-b">
+              <span>Action</span>
+              <span>Subject</span>
+              <span>When</span>
+              <span>Details</span>
             </div>
-          </ScrollArea>
+
+            <ScrollArea className="h-64 pr-2">
+              <div className="space-y-3">
+                {activities.map((activity) => {
+                  const subject =
+                    activity.details?.patientName ||
+                    activity.details?.donorName ||
+                    activity.details?.entityName ||
+                    "System Action";
+
+                  const timeLabel = formatDistanceToNow(
+                    new Date(activity.timestamp),
+                    { addSuffix: true }
+                  );
+
+                  const statusLine = activity.details?.previousStatus
+                    ? `${activity.details.previousStatus} → ${activity.details.newStatus}`
+                    : activity.details?.description || "—";
+
+                  return (
+                    <div
+                      key={activity.id}
+                      className="border-b last:border-b-0 pb-3"
+                    >
+                      {/* Desktop layout */}
+                      <div className="hidden md:grid md:grid-cols-[0.8fr,1.4fr,0.8fr,1.2fr] items-start gap-3 text-sm">
+                        <div>
+                          <Badge className={getActionColor(activity.action)}>
+                            {getActionLabel(activity.action)}
+                          </Badge>
+                        </div>
+                        <div className="truncate font-medium" title={subject}>
+                          {subject}
+                        </div>
+                        <div className="text-xs text-gray-500">{timeLabel}</div>
+                        <div className="text-xs text-gray-600 break-words">
+                          {statusLine}
+                        </div>
+                      </div>
+
+                      {/* Mobile layout */}
+                      <div className="md:hidden flex flex-col gap-1 text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge className={getActionColor(activity.action)}>
+                            {getActionLabel(activity.action)}
+                          </Badge>
+                          <span className="text-xs text-gray-500">{timeLabel}</span>
+                        </div>
+                        <div className="font-medium truncate" title={subject}>
+                          {subject}
+                        </div>
+                        <div className="text-xs text-gray-600 break-words">
+                          {statusLine}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -47,7 +47,10 @@ export default function Register() {
               navigate("/", { replace: true });
               return;
             } else if (userData.role === "admin") {
-              navigate("/admin", { replace: true });
+              // If an admin somehow lands on the public register page
+              // (e.g. via "Become a Donor"), send them to the
+              // admin dashboard instead of the admin login page.
+              navigate("/admin/dashboard", { replace: true });
               return;
             }
           }

@@ -64,17 +64,27 @@ export default function DonorSearch() {
   }, []);
 
  const filteredDonors = donors
-  .filter(donor => {
+  .filter((donor) => {
     if (!donor) return false; // Skip null/undefined donors
 
-    const name = donor.name || ""; // fallback to empty string
-    const location = donor.location || "";
+    // Our Firestore users collection stores firstName/lastName and address
+    const name = `${donor.firstName || ""} ${donor.lastName || ""}`.trim();
+    const location = donor.address || "";
     const bloodType = donor.bloodType || "";
-    const availability = donor.availability || "";
 
+    // Derive a simple availability status from isActive + donations
+    const availability: string = (() => {
+      if (donor.isActive === true) return "available";
+      if (donor.totalDonations && donor.totalDonations > 0) return "recently_donated";
+      if (donor.isActive === false) return "unavailable";
+      return "";
+    })();
+
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.toLowerCase().includes(searchTerm.toLowerCase());
+      !term ||
+      name.toLowerCase().includes(term) ||
+      location.toLowerCase().includes(term);
 
     const matchesBloodType =
       bloodTypeFilter === "All" || bloodType === bloodTypeFilter;
@@ -98,10 +108,14 @@ export default function DonorSearch() {
         return (b.rating || 0) - (a.rating || 0);
       case "donations":
         return (b.totalDonations || 0) - (a.totalDonations || 0);
-      case "recent":
-        return (
-          new Date(b.joinedDate || 0).getTime() - new Date(a.joinedDate || 0).getTime()
-        );
+      case "recent": {
+        const getTime = (value: any) => {
+          if (!value) return 0;
+          if (value?.toDate) return value.toDate().getTime();
+          return new Date(value).getTime() || 0;
+        };
+        return getTime(b.createdAt) - getTime(a.createdAt);
+      }
       default:
         return 0;
     }
@@ -289,7 +303,7 @@ const getBloodTypeColor = (bloodType?: string) => {
                           </div>
                         </div>
                       </div>
-                      {getAvailabilityBadge('available')}
+                      {getAvailabilityBadge(donor.isActive ? "available" : "unavailable")}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
