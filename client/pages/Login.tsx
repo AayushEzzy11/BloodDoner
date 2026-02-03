@@ -20,35 +20,32 @@ import { toast } from "sonner";
 
 export default function Login() {
   const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if(userDocSnap.exists()){
-          const userData = userDocSnap.data();
-
-          if (userData.role === "donor") {
-            navigate("/dashboard");
-            return;
-          } else if (userData.role === "seeker") {
-            navigate("/");
-            return;
-          }
+      try {
+        if (user) {
+          // User is already logged in, don't redirect from login page
+          // This allows logged-in users to still access the login page if needed
+          // The ProtectedRoute will handle admin access
+          return;
         }
+      } catch (error) {
+        console.error("Auth check error:", error);
       }
     });
 
     return () => unsubscribe();
-  }, [navigate]);
+  }, []);
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.id]: e.target.value });
   };
+  
   const handleLogin = async () => {
     const { email, password } = loginData;
 
@@ -58,20 +55,12 @@ export default function Login() {
     }
 
     try {
-      
       const user = await loginUser(email, password);
       toast.success(`Login Successful!!`);
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-      const userData = userDocSnap.data();
-
-      if (userData.role === "donor") {
-        navigate("/dashboard");
-        return;
-      } else if (userData.role === "seeker") {
-        navigate("/");
-        return;
-      }
+      
+      // Don't navigate here - let the onAuthStateChanged listener handle it
+      // This prevents the bouncing issue
+      
       setLoginData({
         email: "",
         password: "",

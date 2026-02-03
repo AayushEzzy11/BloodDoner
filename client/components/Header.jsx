@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Heart, User, LogOut, LayoutDashboard } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import EmergencyAlert from "./EmergencyAlert";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/firebase/firebaseConfig";
@@ -12,13 +12,17 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdown, setIsProfileDropdown] = useState(false);
-  const navigate = useNavigate();
   const handleLogout= ()=>{
     setIsProfileDropdown(!isProfileDropdown);
   }
   useEffect(() => {
     // Check if the user is logged in
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setUser(null);
+        return;
+      }
+
       setUser(currentUser);
       try {
         const userDocRef = doc(db, "users", currentUser.uid);
@@ -28,12 +32,7 @@ export default function Header() {
           const userData = userDocSnap.data();
           console.log(userData);
           
-
-          if (userData.role !== "donor") {
-            navigate("/login");
-            return;
-          }
-
+          // Allow all authenticated users, don't redirect based on role
           const thisUser = { uid: currentUser.uid, ...userData };
           setUser(thisUser);
         }

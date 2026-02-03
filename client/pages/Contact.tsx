@@ -100,7 +100,8 @@ export default function Contact() {
                   <Phone className="h-5 w-5 text-destructive" />
                   <div>
                     <p className="font-semibold text-destructive">
-                      +977 1-4200-100
+                      +977 9865375544 <br />
+                      +977 9808736563
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Available 24/7
@@ -144,7 +145,8 @@ export default function Contact() {
                   <div>
                     <p className="font-medium">General Inquiries</p>
                     <p className="text-sm text-muted-foreground">
-                      +977 1-4200-200
+                      +977 9865375544 <br />
+                      +977 9808736563
                     </p>
                   </div>
                 </div>

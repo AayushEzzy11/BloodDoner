@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
-import { Heart, UserPlus, Building2 } from "lucide-react";
+import { Heart, UserPlus, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "@/lib/auth";
 import { auth, db } from "@/firebase/firebaseConfig";
@@ -29,29 +29,38 @@ import { onAuthStateChanged, User } from "firebase/auth";
 export default function Register() {
   //
   const navigate = useNavigate();
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
         if (user) {
-  
+          // User is already logged in, redirect them away from register page
           const userDocRef = doc(db, "users", user.uid);
           const userDocSnap = await getDoc(userDocRef);
           if(userDocSnap.exists()){
             const userData = userDocSnap.data();
-  
+
             if (userData.role === "donor") {
-              navigate("/dashboard");
+              navigate("/dashboard", { replace: true });
               return;
             } else if (userData.role === "seeker") {
-              navigate("/");
+              navigate("/", { replace: true });
+              return;
+            } else if (userData.role === "admin") {
+              navigate("/admin", { replace: true });
               return;
             }
           }
         }
-      });
-  
-      return () => unsubscribe();
-    }, [navigate]);
-  const [tab, setTab] = useState<"donor" | "seeker">("donor");
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+  const [tab, setTab] = useState<"donor" | "admin">("donor");
+  const [isLoading, setIsLoading] = useState(false);
 
   // const [formData, setFormData] = useState<any>({
   //   firstName: "",
@@ -91,13 +100,23 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  const [adminData, setAdminData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    adminKey: "",
+    password: "",
+    confirmPassword: "",
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
 
     if (tab === "donor") {
       setDonorData((prev) => ({ ...prev, [id]: value }));
-    } else {
-      setSeekerData((prev) => ({ ...prev, [id]: value }));
+    } else if (tab === "admin") {
+      setAdminData((prev) => ({ ...prev, [id]: value }));
     }
   };
 
@@ -108,20 +127,59 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
+    setIsLoading(true);
     if (tab === "donor") {
       const { email,firstName, lastName,phone,bloodType,age,address, password, confirmPassword } = donorData;
-      if(!firstName) return toast.error("First name is required.");
-      if(!lastName) return toast.error("Last name is required.");
-      if (!email) return toast.error("Email is required.");
-      if(!phone) return toast.error("Phone number is required.");
-      if(phone.length !== 15) return toast.error("Invalid Phone number.");
-      if(!bloodType) return toast.error("Blood type is required.");
-      if(!age) return toast.error("Age is required.");
-      if(parseInt(age) < 18) return toast.error("You must be at least 18 years old.");
-      if(!address) return toast.error("Address is required.");
-      if(!password) return toast.error("Password is required.");
-      if (password !== confirmPassword)
+      if(!firstName) {
+        setIsLoading(false);
+        return toast.error("First name is required.");
+      }
+      if(!lastName) {
+        setIsLoading(false);
+        return toast.error("Last name is required.");
+      }
+      if (!email) {
+        setIsLoading(false);
+        return toast.error("Email is required.");
+      }
+      if(!phone) {
+        setIsLoading(false);
+        return toast.error("Phone number is required.");
+      }
+      const phoneRegex = /^\+977\s9\d{9}$/;
+      if(!phoneRegex.test(phone)) {
+        setIsLoading(false);
+        return toast.error("Invalid Phone number.");
+      }
+      if(!bloodType) {
+        setIsLoading(false);
+        return toast.error("Blood type is required.");
+      }
+      if(!age) {
+        setIsLoading(false);
+        return toast.error("Age is required.");
+      }
+      if(parseInt(age) < 18) {
+        setIsLoading(false);
+        return toast.error("You must be at least 18 years old.");
+      }
+      if(!address) {
+        setIsLoading(false);
+        return toast.error("Address is required.");
+      }
+      const addressRegex = /^[^,]+(,[^,]+)+[^\s,]$/;
+      if(!addressRegex.test(address)) {
+        setIsLoading(false);
+        return toast.error("Address must be in City, District format.");
+      }
+      if(!password) {
+        setIsLoading(false);
+        return toast.error("Password is required.");
+      }
+      if (password !== confirmPassword) {
+        setIsLoading(false);
         return toast.error("Passwords do not match.");
+      }
       try {
         await registerUser(email, password, {
           role: "donor",
@@ -144,7 +202,9 @@ export default function Register() {
           password: "",
           confirmPassword: "",
         });
+        // Don't navigate, let auth listener handle redirect
       } catch (err: any) {
+        setIsLoading(false);
         switch (err.code) {
           case "auth/email-already-in-use":
             toast.error("This email already exist.");
@@ -159,45 +219,83 @@ export default function Register() {
             toast.error("Registration failed:",err.message);
         }
       }
-    } else {
-      const { email, password, confirmPassword } = seekerData;
-      if (!email || !password) return toast.error("Email and password required.");
-      if (password !== confirmPassword)
+    } else if (tab === "admin") {
+      const { email, firstName, lastName, phone, adminKey, password, confirmPassword } = adminData;
+      if (!firstName) {
+        setIsLoading(false);
+        return toast.error("First name is required.");
+      }
+      if (!lastName) {
+        setIsLoading(false);
+        return toast.error("Last name is required.");
+      }
+      if (!email) {
+        setIsLoading(false);
+        return toast.error("Email is required.");
+      }
+      if (!phone) {
+        setIsLoading(false);
+        return toast.error("Phone number is required.");
+      }
+      const phoneRegex = /^\+977\s9\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        setIsLoading(false);
+        return toast.error("Invalid Phone number.");
+      }
+      if (!adminKey) {
+        setIsLoading(false);
+        return toast.error("Admin key is required.");
+      }
+      const validAdminKey = "ADMIN_SECRET_2024";
+      if (adminKey !== validAdminKey) {
+        setIsLoading(false);
+        return toast.error("Invalid admin key.");
+      }
+      if (!password) {
+        setIsLoading(false);
+        return toast.error("Password is required.");
+      }
+      if (password !== confirmPassword) {
+        setIsLoading(false);
         return toast.error("Passwords do not match.");
+      }
 
       try {
         await registerUser(email, password, {
-          role: "seeker",
-          orgName: seekerData.orgName,
-          contactPerson: seekerData.contactPerson,
-          phone: seekerData.phone,
-          address: seekerData.address,
-          licenseNumber: seekerData.licenseNumber,
+          role: "admin",
+          firstName: adminData.firstName,
+          lastName: adminData.lastName,
+          phone: adminData.phone,
         });
-        toast.success("Seeker registration successful!");
-        setSeekerData({
-          orgName: "",
-          contactPerson: "",
+        toast.success("Admin account created successfully!");
+        setAdminData({
+          firstName: "",
+          lastName: "",
           email: "",
           phone: "",
-          address: "",
-          licenseNumber: "",
+          adminKey: "",
           password: "",
           confirmPassword: "",
         });
+        // Don't navigate, let auth listener handle redirect
       } catch (err: any) {
+        setIsLoading(false);
         switch (err.code) {
           case "auth/email-already-in-use":
             toast.error("This email already exist.");
+            break;
           case "auth/invalid-email":
             toast.error("Invalid email format.");
+            break;
           case "auth/weak-password":
             toast.error("Password is too weak (min 6 characters).");
+            break;
           default:
-            toast.error("Registration failed:",err.message);
+            toast.error("Registration failed:", err.message);
         }
       }
     }
+    setIsLoading(false);
   };
   //
   return (
@@ -218,16 +316,17 @@ export default function Register() {
             </p>
           </div>
 
-          <Tabs defaultValue="donor" value={tab} onValueChange={(val) => setTab(val as "donor" | "seeker")} className="w-full">
-            {/* <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="donor" value={tab} onValueChange={(val) => setTab(val as "donor" | "admin")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="donor" className="flex items-center gap-2">
                 <UserPlus className="h-4 w-4" />
-                I'm a Donor
+                Donor
               </TabsTrigger>
-              <TabsTrigger value="seeker" className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" />I Need Blood
+              <TabsTrigger value="admin" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Admin
               </TabsTrigger>
-            </TabsList> */}
+            </TabsList>
 
             <TabsContent value="donor">
               <Card>
@@ -325,31 +424,29 @@ export default function Register() {
               </Card>
             </TabsContent>
 
-            {/* <TabsContent value="seeker">
+            <TabsContent value="admin">
               <Card>
                 <CardHeader>
-                  <CardTitle>Register as Blood Seeker</CardTitle>
+                  <CardTitle>Register as Administrator</CardTitle>
                   <CardDescription>
-                    Register to request blood donations when needed
+                    Create an admin account to manage blood donations and requests
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="orgName">Organization/Name</Label>
-                      <Input
-                        id="orgName"
-                        value={seekerData.orgName}
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input id="firstName"
+                        value={adminData.firstName}
                         onChange={handleChange}
-                        placeholder="Hospital/Individual Name"
-                      />
+                        placeholder="John" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="contactPerson">Contact Person</Label>
-                      <Input id="contactPerson" 
-                        value={seekerData.contactPerson}
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input id="lastName" 
+                        value={adminData.lastName}
                         onChange={handleChange}
-                        placeholder="Dr. John Doe" />
+                        placeholder="Doe" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -357,53 +454,47 @@ export default function Register() {
                     <Input
                       id="email"
                       type="email"
-                      value={seekerData.email}
+                      value={adminData.email}
                       onChange={handleChange}
-                      placeholder="contact@hospital.com"
+                      placeholder="admin@blooddoner.com"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input id="phone" 
-                        value={seekerData.phone}
-                        onChange={handleChange}
-                        placeholder="+977 98XXXXXXXX" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input id="address" 
-                        value={seekerData.address}
-                        onChange={handleChange}placeholder="Hospital Address" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="licenseNumber">
-                      License/Registration Number
-                    </Label>
-                    <Input
-                      id="licenseNumber"
-                      value={seekerData.licenseNumber}
+                      value={adminData.phone}
                       onChange={handleChange}
-                      placeholder="Medical License Number"
-                    />
+                      placeholder="+977 9XXXXXXXXX" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="adminKey">Admin Key</Label>
+                    <Input id="adminKey" 
+                      type="password"
+                      value={adminData.adminKey}
+                      onChange={handleChange}
+                      placeholder="Enter admin secret key" />
+                    <p className="text-xs text-muted-foreground">Contact the system administrator for the admin key</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" 
-                        value={seekerData.password}
+                        value={adminData.password}
                         onChange={handleChange}
-                        type="password" />
+                        type="password" 
+                        placeholder="Enter strong password" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input id="confirmPassword" 
-                        value={seekerData.confirmPassword}
+                        value={adminData.confirmPassword}
                         onChange={handleChange}
-                        type="password" />
+                        type="password" 
+                        placeholder="Confirm your password" />
                   </div>
-                  <Button className="w-full" onClick={handleRegister}>Register as Seeker</Button>
+                  <Button className="w-full" onClick={handleRegister}>Register as Admin</Button>
                 </CardContent>
               </Card>
-            </TabsContent> */}
+            </TabsContent>
           </Tabs>
 
           <div className="text-center text-sm text-muted-foreground mt-6">

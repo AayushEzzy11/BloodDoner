@@ -17,6 +17,11 @@ import BloodRequest from "./pages/BloodRequest";
 import DonorSearch from "./pages/DonorSearch";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
+import SetupAdmin from "./pages/SetupAdmin";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +32,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} /> 
           <Route path="/register" element={<Register />} />
@@ -37,8 +43,24 @@ const App = () => (
           <Route path="/request/:id" element={<BloodRequest />} />
           <Route path="/donors" element={<DonorSearch />} />
           <Route path="/about" element={<About />} />
-          <Route path="/logout" element={<Logout />} /> 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/setup-admin" element={<SetupAdmin />} />
+          
+          {/* ADMIN ROUTES - SEPARATE FROM USER ROUTES */}
+          {/* Admin Login Page */}
+          <Route path="/admin" element={<AdminLogin />} />
+          
+          {/* Admin Dashboard - Protected Route */}
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            } 
+          />
+          
+          {/* Catch-all for undefined routes */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

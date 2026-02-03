@@ -154,6 +154,8 @@ export default function BloodRequest() {
       case 1:
         return formData.patientName && formData.bloodType && formData.unitsNeeded && formData.urgency;
       case 2:
+        const phoneRegex = /^\+977\s9\d{9}$/;
+        if(phoneRegex.test(formData.phoneNumber)===false) return false;
         return formData.hospital && formData.contactPerson && formData.phoneNumber && formData.location;
       case 3:
         return formData.medicalCondition;
@@ -423,7 +425,7 @@ export default function BloodRequest() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phoneNumber">Phone Number *</Label>
                       <Input
@@ -431,11 +433,11 @@ export default function BloodRequest() {
                         type="tel"
                         value={formData.phoneNumber}
                         onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-                        placeholder="+977 98XXXXXXXX"
+                        placeholder="+977 9XXXXXXXXX"
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    {/* <div className="space-y-2">
                       <Label htmlFor="alternatePhone">Alternate Phone</Label>
                       <Input
                         id="alternatePhone"
@@ -444,7 +446,7 @@ export default function BloodRequest() {
                         onChange={(e) => handleInputChange("alternatePhone", e.target.value)}
                         placeholder="+977 98XXXXXXXX"
                       />
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="space-y-2">
@@ -453,7 +455,7 @@ export default function BloodRequest() {
                       id="location"
                       value={formData.location}
                       onChange={(e) => handleInputChange("location", e.target.value)}
-                      placeholder="City, District (e.g., Kathmandu, Bagmati)"
+                      placeholder="City, District"
                     />
                   </div>
                 </>
