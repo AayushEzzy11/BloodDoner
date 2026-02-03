@@ -45,19 +45,34 @@ export const CompleteBloodDonation = async (file: UploadFile, donationId: string
   const reportUrl = await uploadBloodDonationReport(file);
 
   // Update the donation record
+  const completedAt = Timestamp.now();
   await donationRef.update({
     reportUrl,
-    completedAt: Timestamp.now(),
+    completedAt,
   });
 
-  // Update the related blood request to "completed"
+  // Update the related blood request to "fulfilled"
   const donationData = donationSnap.data();
   if (!donationData?.bloodRequestId) {
     throw new Error("Blood request ID missing in donation record");
   }
 
   const requestRef = db.collection("bloodRequests").doc(donationData.bloodRequestId);
-  await requestRef.update({ status: "completed" });
+  await requestRef.update({ status: "fulfilled" });
+
+  // Optionally log an admin-like activity document for visibility
+  const donorName = donationData.donorName || donationData.donorId;
+  await db.collection("adminActivityLogs").add({
+    adminId: "system",
+    action: "COMPLETE_DONATION",
+    details: {
+      donationId,
+      donorId: donationData.donorId,
+      donorName,
+      bloodRequestId: donationData.bloodRequestId,
+    },
+    timestamp: completedAt.toDate(),
+  });
 
   return { success: true, reportUrl };
 };

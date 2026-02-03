@@ -19,6 +19,7 @@ import BloodGroupChart from "@/components/admin/BloodGroupChart";
 import BloodRequestsTable from "@/components/admin/BloodRequestsTable";
 import DonorsTable from "@/components/admin/DonorsTable";
 import ActivityLog from "@/components/admin/ActivityLog";
+import CompletedDonationsTable from "@/components/admin/CompletedDonationsTable";
 import { logoutUser } from "@/lib/auth";
 
 type TabType = "dashboard" | "requests" | "donors" | "analytics" | "activity";
@@ -308,17 +309,21 @@ export const AdminDashboard = () => {
 
             {/* Recent Activity Tab */}
             {activeTab === "activity" && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">
                     Recent Activity
                   </h2>
                   <p className="text-gray-600">
-                    Latest admin actions across blood requests and donors
+                    Latest admin and system actions across blood requests and donors
                   </p>
                 </div>
 
+                {/* Top: recent actions timeline */}
                 <ActivityLog refreshTrigger={refreshTrigger} />
+
+                {/* Bottom: explicit completed donations table */}
+                <CompletedDonationsTable refreshTrigger={refreshTrigger} />
               </div>
             )}
           </div>

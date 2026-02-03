@@ -79,16 +79,16 @@ export const ActivityLog = ({ refreshTrigger = 0 }: ActivityLogProps) => {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-[60vh]">
             <p className="text-gray-500">Loading activities...</p>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-64 gap-2">
+          <div className="flex items-center justify-center h-[60vh] gap-2">
             <AlertCircle className="h-5 w-5 text-red-500" />
             <p className="text-red-500">{error}</p>
           </div>
         ) : activities.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-[60vh]">
             <p className="text-gray-500">No activities recorded yet</p>
           </div>
         ) : (
@@ -101,7 +101,7 @@ export const ActivityLog = ({ refreshTrigger = 0 }: ActivityLogProps) => {
               <span>Details</span>
             </div>
 
-            <ScrollArea className="h-64 pr-2">
+            <ScrollArea className="h-[60vh] pr-2">
               <div className="space-y-3">
                 {activities.map((activity) => {
                   const subject =

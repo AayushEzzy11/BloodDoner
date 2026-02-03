@@ -222,6 +222,62 @@ export async function getRecentActivities(limitCount: number = 10) {
 }
 
 /**
+ * Get completed donations for admin view
+ */
+export async function getCompletedDonations(limitCount: number = 100) {
+  try {
+    const q = query(
+      collection(db, "bloodAcceptances"),
+      where("completedAt", "!=", null),
+      orderBy("completedAt", "desc"),
+      limit(limitCount)
+    );
+
+    const snap = await getDocs(q);
+    const rows: any[] = [];
+
+    for (const docSnap of snap.docs) {
+      const data: any = docSnap.data();
+
+      // Fetch related request for patient/hospital info
+      let patientName = "Unknown";
+      let hospital = "";
+      let bloodType = data.bloodType || "";
+
+      if (data.bloodRequestId) {
+        const reqRef = doc(db, "bloodRequests", data.bloodRequestId);
+        const reqSnap = await getDoc(reqRef);
+        if (reqSnap.exists()) {
+          const rData: any = reqSnap.data();
+          patientName = rData.patientName || patientName;
+          hospital = rData.hospital || hospital;
+          bloodType = rData.bloodType || bloodType;
+        }
+      }
+
+      rows.push({
+        id: docSnap.id,
+        donorId: data.donorId,
+        donorName: data.donorName || data.donorId,
+        patientName,
+        hospital,
+        bloodType,
+        reportUrl: data.reportUrl,
+        completedAt:
+          data.completedAt instanceof Timestamp
+            ? data.completedAt.toDate()
+            : data.completedAt,
+      });
+    }
+
+    return rows;
+  } catch (error) {
+    console.error("Error fetching completed donations:", error);
+    throw error;
+  }
+}
+
+/**
  * Update blood request status
  */
 export async function updateRequestStatus(
